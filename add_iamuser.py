@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  add_role_and_iamuser.py
+#  add_iamuser.py
 #  ======
 #  Copyright (C) 2018 n.fujita
 #
@@ -79,7 +79,7 @@ def check_config(config):
         for i in res:
             print('Not found "'+i+'"')
     # Check Level 2 in "Iam"
-    keys = [ 'PolicyName', 'UserName' ]
+    keys = [ 'PolicyName', 'UserName', 'Min', 'Max' ]
     target = config.get('Iam')
     res = [ k for k in keys if k not in target ]
     if len(res) > 0:
@@ -181,16 +181,61 @@ def assume_role(account_id, config):
     return assumedRoleObject['Credentials']
 
 
-def add_iamuser(credentials, config, accountid, args):
+def add_iamuser(credentials, accountid, username, policyname, usernamehead, switchrole, region, args):
 
     iam = boto3.client('iam',
                           aws_access_key_id=credentials['AccessKeyId'],
                           aws_secret_access_key=credentials['SecretAccessKey'],
                           aws_session_token=credentials['SessionToken'],
-                          region_name=config['Region'])
+                          region_name=region)
 
-    # Create Policies
-    print("  Create Policies.")
+    # First message
+    print("  Create or replace IAM user("+username+")")
+
+    # Delete existing users and policies
+    # Delete login profile
+    try:
+        res = iam.get_login_profile(UserName=username)
+    except Exception as e:
+        if e.response['ResponseMetadata']['HTTPStatusCode'] != 404:
+            print(e)
+            return False
+    else:
+        print("    Delete existing login password for IAM user.")
+        res = iam.delete_login_profile(UserName=username)
+ 
+    # Delete inline users policy
+    try:
+        res = iam.delete_user_policy(
+            UserName = username,
+            PolicyName=policyname,
+        )
+    except ClientError as e:
+        if e.response['ResponseMetadata']['HTTPStatusCode'] != 404:
+            print(e)
+            return False
+
+    # Delete existing users
+    UserArnList = [ i['Arn'] for i in iam.list_users()['Users'] if i['UserName'] == username ]
+    if len(UserArnList) > 0:
+        print("    Delete existing IAM user.")
+        for i in UserArnList:
+            iam.delete_user(UserName=username)
+
+    # Create IAM User
+    print("    Create a IAM User.")
+    try:
+        res = iam.create_user(
+            Path='/',
+            UserName=username
+        )
+    except ClientError as e:
+        if e.response['ResponseMetadata']['HTTPStatusCode'] != 409:
+            print(e)
+            return False
+
+    # Put inline policy to the IAM User
+    print("    Put inline policy.")
     my_managed_policy = {
         "Version": "2012-10-17",
         "Statement": [
@@ -202,76 +247,33 @@ def add_iamuser(credentials, config, accountid, args):
             {
                 "Effect": "Deny",
                 "Action": [
-                    "iam:Delete*",
-                    "iam:Update*",
+                    "iam:*"
                 ],
                 "Resource": [
-                    "arn:aws:iam::*:role/OrganizationAccountAccessRole",
-                    "arn:aws:iam::*:policy/"+config['Iam']['PolicyName'],
-                    "arn:aws:iam::*:user/"+config['Iam']['PolicyName']
+                    "arn:aws:iam::*:role/"+switchrole,
+                    "arn:aws:iam::*:user/"+usernamehead+"*"
                 ]
             }
         ]
     }
-    policyArnList = [ i['Arn'] for i in iam.list_policies( Scope = 'Local', OnlyAttached = False)['Policies'] if i['PolicyName'] == config['Iam']['PolicyName'] ]
-    if len(policyArnList) > 0:
-        for i in policyArnList:
-            iam.delete_policy(PolicyArn=i)
     try:
-        res = iam.create_policy(
-            PolicyName=config['Iam']['PolicyName'],
+        res = iam.put_user_policy(
+            UserName = username,
+            PolicyName=policyname,
             PolicyDocument=json.dumps(my_managed_policy)
         )
     except ClientError as e:
         if e.response['ResponseMetadata']['HTTPStatusCode'] != 409:
             print(e)
             return False
-    policyArn = [ i['Arn'] for i in iam.list_policies( Scope = 'Local', OnlyAttached = False)['Policies'] if i['PolicyName'] == config['Iam']['PolicyName'] ][0]
-    if args.debug : print("  policyArn= "+policyArn)
 
-    # Create IAM User
-    print("  Create a IAM User.")
-    UserArnList = [ i['Arn'] for i in iam.list_users()['Users'] if i['UserName'] == config['Iam']['UserName'] ]
-    if len(UserArnList) > 0:
-        for i in UserArnList:
-            iam.delete_user(UserName=config['Iam']['UserName'])
-    try:
-        res = iam.create_user(
-            Path='/',
-            UserName=config['Iam']['UserName']
-        )
-    except ClientError as e:
-        if e.response['ResponseMetadata']['HTTPStatusCode'] != 409:
-            print(e)
-            return False
-    
-    # Attach a policy to IAM User
-    print("  Attach a profile.")
-    try:
-        res = iam.attach_user_policy(
-            UserName = config['Iam']['UserName'],
-            PolicyArn = policyArn
-        )
-    except ClientError as e:
-        print(e)
-        return False
     # Create login profile User
-    print("  Set a assword.")
-    try:
-        res = iam.get_login_profile(UserName=config['Iam']['UserName'])
-    except Exception as e:
-        if e.response['ResponseMetadata']['HTTPStatusCode'] != 404:
-            print(e)
-            return False
-    else:
-        res = iam.delete_login_profile(UserName=config['Iam']['UserName'])
-
-
+    print("    Set a assword.")
     password = ''.join([random.choice(string.ascii_letters + string.digits) for i in range(8)])
-    if args.debug : print("  password= "+password)
+    if args.debug : print("    password= "+password)
     try:
         res = iam.create_login_profile(
-            UserName = config['Iam']['UserName'],
+            UserName = username,
             Password = password,
             PasswordResetRequired = False
         )
@@ -283,7 +285,7 @@ def add_iamuser(credentials, config, accountid, args):
     res = {
         "AccountId": accountid,
         "ConsoleUrl": "https://" + accountid + ".signin.aws.amazon.com/console",
-        "UserName": config['Iam']['UserName'],
+        "UserName": username,
         "Password": password
     }
     return res
@@ -296,9 +298,16 @@ def add_resource(config, accounts, args):
     for id in [ i['Id'] for i in accounts ]:
         print("Account ID: "+id)
         credentials = assume_role(id, config)
-        res = add_iamuser(credentials, config, id, args)
-        if res != False:
-            LoginInformation.append(res)
+
+        for i in range(config['Iam']['Min'],config['Iam']['Max']+1 ):
+            usernamehead = config['Iam']['UserName']
+            username = '{}{:02d}'.format(usernamehead,i)
+            policyname = config['Iam']['PolicyName']
+            region = config['Region']
+            switchrole = config['AccountRole']
+            res = add_iamuser(credentials, id, username, policyname, usernamehead, switchrole, region, args)
+            if res != False:
+                LoginInformation.append(res)
 
     return LoginInformation
 
