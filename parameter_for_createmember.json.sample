@@ -1,0 +1,13 @@
+{
+    "AccountNameHead": "Workshop",
+    "OuId": "ou-xxxx-xxxxxxxx",
+    "email": {
+        "local":  "MailAccount",
+        "domain": "Mail.domain.com",
+        "ailias": "workshop"
+    },
+    "number": {
+        "min": 0,
+        "max": 10
+    }
+}
