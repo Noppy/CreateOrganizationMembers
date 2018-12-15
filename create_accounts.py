@@ -20,13 +20,30 @@
 from __future__ import print_function
 
 import argparse
+import json
 import sys
 import time
-import json
 
 import boto3
 from botocore.exceptions import ClientError
 
+import common_modules as common
+
+
+# Json skeleton for skeleton_AccountsListJsonFile
+skeleton_AccountsListJsonFile = {
+    "AccountNameHead": "Workshop",
+    "OuId": "ou-xxxx-xxxxxxxx",
+    "email": {
+        "local":  "MailAccount",
+        "domain": "Mail.domain.com",
+        "ailias": "workshop"
+    },
+    "number": {
+        "min": 0,
+        "max": 10
+    }
+}
 
 # ---------------------------
 # Initialize
@@ -35,7 +52,7 @@ def get_args():
     parser = argparse.ArgumentParser(
         description='create member accounts in AWS Organizations.')
 
-    parser.add_argument('AccountListJsonFile',
+    parser.add_argument('AccountsListJsonFile',
         help='A Json File path for registered accounts information')
 
     parser.add_argument('-o','--output',
@@ -51,6 +68,12 @@ def get_args():
         required=False,
         help='Enable dry-run')
 
+    parser.add_argument('-s','--skeleton',
+        action='store_true',
+        default=False,
+        required=False,
+        help='Print a JSON skeleton for AccountsListJsonFile(Specify a dummy parameter to AccountsListJsonFile.)')
+
     parser.add_argument('-v', '--version',
         action='version',
         version='%(prog)s 0.1')
@@ -59,7 +82,7 @@ def get_args():
 
 
 def read_json_conf(args):
-    jsonfile = args.AccountListJsonFile
+    jsonfile = args.AccountsListJsonFile
     debug = args.debug
     try:
         with open(jsonfile, mode='r') as f:
@@ -74,42 +97,6 @@ def read_json_conf(args):
         print('JSONDecodeError: ', e)
 
     return
-
-
-#---------------------------
-# "yes or no question" logiA functionsc
-#---------------------------
-def prompt_for_input(prompt = "", val = None):
-    if val is not None:
-        return val
-    print( prompt + " ")
-    return sys.stdin.readline().strip()
-
-
-def yes_or_no(s):
-    s = s.lower()
-    if s in ("y", "yes", "1", "true", "t"):
-        return True
-    elif s in ("n", "no", "0", "false", "f"):
-        return False
-    raise ValueError("A yes or no response is required")
-
-
-def answer(message):
-    ret = False
-    while 1:
-        print( "\n" + message )
-        res = prompt_for_input("Yes or No?")
-        try:
-            if yes_or_no(res):
-                ret = True
-            else:
-                ret = False
-            break
-        except ValueError as e:
-            print("ERROR: ", e)
-
-    return ret
 
 
 # ---------------------------
@@ -146,7 +133,7 @@ def checkmails(mails):
     for i in mails:
         print( '{:15s}{:40s}{}'.format(i["name"],i["mail"],i["ouid"]) )
     print('--------------+---------------------------------------+----------------')
-    return answer("Are you OK?")
+    return common.answer("Are you OK?")
 
 
 def CreateAccount(client, item):
@@ -227,6 +214,10 @@ def main():
 
     # Initialize
     args = get_args()
+
+    if args.skeleton:
+        print(json.dumps(skeleton_AccountsListJsonFile,indent=4))
+        return
 
     # Read Json configuration file and generate accounts list
     config = read_json_conf(args)
