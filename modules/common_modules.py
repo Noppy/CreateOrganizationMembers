@@ -19,6 +19,7 @@
 #
 from __future__ import print_function
 
+import json
 import sys
 
 
@@ -57,3 +58,29 @@ def answer(message):
 
     return ret
 
+
+#---------------------------
+# read a json configuration file
+#---------------------------
+def read_json_conf(JsonFileName, debug = False):
+
+    try:
+        with open(JsonFileName, mode='r') as f:
+            data = json.load(f)
+            f.close()
+            if debug:
+                print(json.dumps(data, indent=2))
+            return data
+    except IOError as e:
+        print(e)
+    except ValueError:
+        type, value, traceback = sys.exc_info()
+        print (value)
+    except ValueError:
+        type, value, traceback = sys.exc_info()
+        print (type)
+        print (value)
+#    except json.JSONDecodeError as e:
+#        print('JSONDecodeError: ', e)
+
+    return

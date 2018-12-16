@@ -29,6 +29,7 @@ import time
 import boto3
 from botocore.exceptions import ClientError
 
+from modules import common_modules as common
 
 # ---------------------------
 # Initialize
@@ -106,42 +107,6 @@ def read_json_file(jsonfile, args):
     return
 
 
-#---------------------------
-# "yes or no question" logiA functionsc
-#---------------------------
-def prompt_for_input(prompt = "", val = None):
-    if val is not None:
-        return val
-    print( prompt + " ")
-    return sys.stdin.readline().strip()
-
-
-def yes_or_no(s):
-    s = s.lower()
-    if s in ("y", "yes", "1", "true", "t"):
-        return True
-    elif s in ("n", "no", "0", "false", "f"):
-        return False
-    raise ValueError("A yes or no response is required")
-
-
-def answer(message):
-    ret = False
-    while 1:
-        print( "\n" + message )
-        res = prompt_for_input("Yes or No?")
-        try:
-            if yes_or_no(res):
-                ret = True
-            else:
-                ret = False
-            break
-        except ValueError as e:
-            print("ERROR: ", e)
-
-    return ret
-
-
 # ---------------------------
 # functions
 # ---------------------------
@@ -152,7 +117,7 @@ def checkaccount(account):
     for i in account:
         print( '{:13s}{:20s}'.format(i['Id'], i['Name'] ))
     print('------------+--------------------')
-    return answer("Are you OK?")
+    return common.answer("Are you OK?")
 
 
 def assume_role(account_id, config):

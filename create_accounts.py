@@ -27,11 +27,10 @@ import time
 import boto3
 from botocore.exceptions import ClientError
 
-import common_modules as common
+from modules import common_modules as common
 
-
-# Json skeleton for skeleton_AccountsListJsonFile
-skeleton_AccountsListJsonFile = {
+# Json skeleton for skeleton_AccountsConfJsonFile
+skeleton_AccountsConfJsonFile = {
     "AccountNameHead": "Workshop",
     "OuId": "ou-xxxx-xxxxxxxx",
     "email": {
@@ -52,7 +51,7 @@ def get_args():
     parser = argparse.ArgumentParser(
         description='create member accounts in AWS Organizations.')
 
-    parser.add_argument('AccountsListJsonFile',
+    parser.add_argument('AccountsConfJsonFile',
         help='A Json File path for registered accounts information')
 
     parser.add_argument('-o','--output',
@@ -72,31 +71,13 @@ def get_args():
         action='store_true',
         default=False,
         required=False,
-        help='Print a JSON skeleton for AccountsListJsonFile(Specify a dummy parameter to AccountsListJsonFile.)')
+        help='Print a JSON skeleton for AccountsConfJsonFile(Specify a dummy parameter to AccountsConfJsonFile.)')
 
     parser.add_argument('-v', '--version',
         action='version',
         version='%(prog)s 0.1')
 
     return( parser.parse_args() )
-
-
-def read_json_conf(args):
-    jsonfile = args.AccountsListJsonFile
-    debug = args.debug
-    try:
-        with open(jsonfile, mode='r') as f:
-            data = json.load(f)
-            f.close()
-            if debug:
-                print(json.dumps(data, indent=2))
-            return data
-    except IOError as e:
-        print(e)
-    except json.JSONDecodeError as e:
-        print('JSONDecodeError: ', e)
-
-    return
 
 
 # ---------------------------
@@ -216,11 +197,11 @@ def main():
     args = get_args()
 
     if args.skeleton:
-        print(json.dumps(skeleton_AccountsListJsonFile,indent=4))
+        print(json.dumps(skeleton_AccountsConfJsonFile,indent=4))
         return
 
     # Read Json configuration file and generate accounts list
-    config = read_json_conf(args)
+    config = common.read_json_conf(args.AccountsConfJsonFile, debug=args.debug)
     if config is None: return False
 
     maillist = create_mail_address(args, config)

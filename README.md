@@ -9,12 +9,12 @@ This tool requires permissions what allows to create a member account on the AWS
 ![Overview](Documents/Readme-overview.png)
 ## Requirement
 This tool requires following modules and permissions.
-- Executing environment for This tools
+- Executing environment for This tools
     - python
     - AWS SDK for Python(Boto3)
 - AWS Environment
     - AWS Organization
-        - Prepare a OU(Organization Unit) for workshop
+        - Prepare a OU(Organization Unit) for workshop
 ## Install
 ### (1)git clone
 ```
@@ -28,8 +28,8 @@ Reference [boto3 Quickstart](https://boto3.amazonaws.com/v1/documentation/api/la
 (b) Configure boto3
 ```
 $ aws configure
-AWS Access Key ID []: 
-AWS Secret Access Key []: 
+AWS Access Key ID []: <root account - Access key>
+AWS Secret Access Key []: <root account - Secret Key>
 Default region name []: ap-northeast-1
 Default output format [None]: 
 ```
