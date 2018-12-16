@@ -6,8 +6,6 @@ This tool provides support functions for generating Hands-on environments. This 
 1. Generate IAM user(s) in each member account.
 
 This tool requires permissions what allows to create a member account on the AWS Organizations root account, and allow to  Assume Role to the created account's Administorator policy.
-<img src="Documents/Readme-overview.png" alt="Overview for this tool" title="Overview" width="450">
-
 ![Overview](Documents/Readme-overview.png)
 
 ## Demo
