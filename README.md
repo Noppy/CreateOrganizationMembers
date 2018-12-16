@@ -7,10 +7,6 @@ This tool provides support functions for generating Hands-on environments. This 
 
 This tool requires permissions what allows to create a member account on the AWS Organizations root account, and allow to  Assume Role to the created account's Administorator policy.
 ![Overview](Documents/Readme-overview.png)
-
-## Demo
-under construction.
-
 ## Requirement
 This tool requires following modules and permissions.
 - Executing environment for This tools
@@ -21,19 +17,28 @@ This tool requires following modules and permissions.
         - Prepare a OU(Organization Unit) for workshop
 ## Install
 ### (1)git clone
-### (2)Configure aws cli
+```
+https://github.com/Noppy/Handso-on_Generator.git
+```
+### (2)install and Configure aws cli
+(a) Install boto3
 
+Reference [boto3 Quickstart](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) Documents.
+
+(b) Configure boto3
+```
+$ aws configure
+AWS Access Key ID []: 
+AWS Secret Access Key []: 
+Default region name []: ap-northeast-1
+Default output format [None]: 
+```
+### (3)Create OU for Hands-on
 
 ## Usage
 
 
-
-## Contribution
-
 ## Licence
-
-[MIT](https://github.com/tcnksm/tool/blob/master/LICENCE)
-
+Apache License 2.0
 ## Author
-
-[tcnksm](https://github.com/tcnksm)
+[N.Fujita/noppy](https://github.com/Noppy)
