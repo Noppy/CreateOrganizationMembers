@@ -26,6 +26,7 @@ https://github.com/Noppy/Handso-on_Generator.git
 Reference [boto3 Quickstart](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) Documents.
 
 (b) Configure boto3
+Config AWS CLI so that it can run for the root account.
 ```
 $ aws configure
 AWS Access Key ID []: <root account - Access key>
@@ -34,8 +35,16 @@ Default region name []: ap-northeast-1
 Default output format [None]: 
 ```
 ### (3)Create OU for Hands-on
-
+Create a OU(Organizational Units) for grouping created accounts. And take a meme OU-ID. OU-ID is used in create_account command.
+![Create OU](Documents/Readme-OU.png)
 ## Usage
+### (1) Create AWS Accounts
+(a) make json file
+(b) create aws accounts
+
+### (1) Create IAM user
+(a) make json file
+(b) create IAM users
 
 
 ## Licence
