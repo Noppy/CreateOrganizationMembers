@@ -21,12 +21,12 @@ This tool requires following modules and permissions.
 https://github.com/Noppy/Handso-on_Generator.git
 ```
 ### (2)install and Configure aws cli
-(a) Install boto3
+(a) Install boto3 and AWS CLI
 
-Reference [boto3 Quickstart](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) Documents.
+Reference [boto3 Quickstart](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) Documents. (AWS CLI is used for configuring boto3.)
 
-(b) Configure boto3
-Config AWS CLI so that it can run for the root account.
+(b) Configuring boto3
+Configure AWS CLI so that it can run for the root account.
 ```
 $ aws configure
 AWS Access Key ID []: <root account - Access key>
