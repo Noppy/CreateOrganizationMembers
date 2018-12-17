@@ -25,7 +25,7 @@ https://github.com/Noppy/Handso-on_Generator.git
 
 Reference [boto3 Quickstart](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) Documents. (AWS CLI is used for configuring boto3.)
 
-(b) Configuring boto3
+(b) Configure boto3
 Configure AWS CLI so that it can run for the root account.
 ```
 $ aws configure
