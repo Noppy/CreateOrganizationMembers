@@ -62,6 +62,7 @@ Modify AccountsConf.json. OuId, number.min, number.max email.MailAccount, email.
 }
 ```
 According to the setting of json above, 10 accounts with the following settings are created.
+
 | AccountName | Mail Address | OU           | 
 |:-----------:|:------------:|:------------:|
 |Workshop00|mail-account00@Mail.domain.com|ou-xxxx-xxxxxxxx|
@@ -69,7 +70,7 @@ According to the setting of json above, 10 accounts with the following settings 
 |:|:|:|
 |Workshop10|mail-account10@Mail.domain.com|ou-xxxx-xxxxxxxx|
 
-(b) create aws accounts
+(b) create aws accounts
 
 Create AWS accounts. The account information created by the command is output to the accounts.json file.
 ```
