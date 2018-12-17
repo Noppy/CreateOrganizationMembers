@@ -97,6 +97,14 @@ Modify create_iamuser_config.json.
     "Region": "ap-northeast-1"
 }
 ```
+AccountRole and Regin are use for Assume Role. 
+According to the setting of json above, a IAM user with the following settings are created.
+
+| IAM User    | Policy       | 
+|:-----------:|:------------:|
+|user01|HandsonIamUserPolicy|
+
+
 
 (b) create IAM users
 ```
