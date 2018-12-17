@@ -45,12 +45,12 @@ Generate a JSON file for create_accounts.py command.
 ```
 ./create_accounts.py -s dummy > AccountsConf.json
 ```
-Modify AccountsConf.json. 
+Modify AccountsConf.json. OuId, number.min, number.max email.MailAccount, email.domain, email.domai.
 ```
 {
     "OuId": "ou-xxxx-xxxxxxxx",  <-Modify to created OU ID
     "number": {
-        "max": 10, <- Max value of serial number
+        "max": 10, <- Max value of serial number
         "min": 0   <- Min value of serial number
     }, 
     "AccountNameHead": "Workshop",
@@ -61,6 +61,7 @@ Modify AccountsConf.json.
     }
 }
 ```
+According to the setting of json above, 10 accounts with the following settings are created.
 | AccountName | Mail Address | OU           | 
 |:-----------:|:------------:|:------------:|
 |Workshop00|mail-account00@Mail.domain.com|ou-xxxx-xxxxxxxx|
@@ -68,7 +69,12 @@ Modify AccountsConf.json.
 |:|:|:|
 |Workshop10|mail-account10@Mail.domain.com|ou-xxxx-xxxxxxxx|
 
-(b) create aws accounts
+(b) create aws accounts
+
+Create AWS accounts. The account information created by the command is output to the accounts.json file.
+```
+./create_accounts.py AccountsConf.json
+```
 
 ### (1) Create IAM user
 (a) make json file
