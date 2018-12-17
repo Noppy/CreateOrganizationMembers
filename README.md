@@ -39,7 +39,35 @@ Create a OU(Organizational Units) for grouping created accounts. And take a meme
 ![Create OU](Documents/Readme-OU.png)
 ## Usage
 ### (1) Create AWS Accounts
-(a) make json file
+(a) make a json file
+
+Generate a JSON file for create_accounts.py command.
+```
+./create_accounts.py -s dummy > AccountsConf.json
+```
+Modify AccountsConf.json. 
+```
+{
+    "OuId": "ou-xxxx-xxxxxxxx",  <-Modify to created OU ID
+    "number": {
+        "max": 10, <- Max value of serial number
+        "min": 0   <- Min value of serial number
+    }, 
+    "AccountNameHead": "Workshop",
+    "email": {
+        "ailias": "workshop", 
+        "domain": "Mail.domain.com",　 
+        "MailAccount": "mail-account"
+    }
+}
+```
+| AccountName | Mail Address | OU           | 
+|:-----------:|:------------:|:------------:|
+|Workshop00|mail-account00@Mail.domain.com|ou-xxxx-xxxxxxxx|
+|Workshop01|mail-account01@Mail.domain.com|ou-xxxx-xxxxxxxx|
+|:|:|:|
+|Workshop10|mail-account10@Mail.domain.com|ou-xxxx-xxxxxxxx|
+
 (b) create aws accounts
 
 ### (1) Create IAM user

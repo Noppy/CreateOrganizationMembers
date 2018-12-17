@@ -34,7 +34,7 @@ skeleton_AccountsConfJsonFile = {
     "AccountNameHead": "Workshop",
     "OuId": "ou-xxxx-xxxxxxxx",
     "email": {
-        "local":  "MailAccount",
+        "MailAccount": "mail-account",
         "domain": "Mail.domain.com",
         "ailias": "workshop"
     },
@@ -92,14 +92,14 @@ def create_mail_address(args, conf):
 
     # Check parameter
     if r['min'] < 0 or r['min'] > r['max']+1 \
-       or len(m['local']) <= 0 or len(m['ailias']) <= 0 or m['domain'] <= 0:
+       or len(m['MailAccount']) <= 0 or len(m['ailias']) <= 0 or m['domain'] <= 0:
         print("invalid a json file.")
         return
 
     # Create e-mail address list
     for i in range(r['min'],r['max']+1 ):
             mlist.append( {
-                'mail': '{}+{}{:03d}@{}'.format(m['local'], m['ailias'], i, m['domain']),
+                'mail': '{}+{}{:03d}@{}'.format(m['MailAccount'], m['ailias'], i, m['domain']),
                 'name': '{}{:03d}'.format(conf['AccountNameHead'],i),
                 'ouid': ouid
             })
