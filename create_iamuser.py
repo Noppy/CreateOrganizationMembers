@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  add_iamuser.py
+#  create_iamuser.py
 #  ======
 #  Copyright (C) 2018 n.fujita
 #
@@ -30,6 +30,20 @@ import boto3
 from botocore.exceptions import ClientError
 
 from modules import common_modules as common
+from modules import assume_role
+
+# Json skeleton for skeleton_IamUserConfJsonFile
+skeleton_IamUserConfJsonFile = {
+    "AccountRole": "OrganizationAccountAccessRole",
+    "Region": "ap-northeast-1",
+    "Iam": {
+        "PolicyName": "HandsonIamUserPolicy",
+        "UserName": "user",
+        "Min": 1,
+        "Max": 1
+    }
+}
+
 
 # ---------------------------
 # Initialize
@@ -43,9 +57,9 @@ def get_args():
 
     parser.add_argument('-c','--conf',
         action='store',
-        default='parameter_for_add_role_and_iamuser.json',
+        default='create_iamuser_config.json',
         type=str,
-        required=True,
+        required=False,
         help='configuration json file.')
 
     parser.add_argument('-o','--output',
@@ -60,6 +74,12 @@ def get_args():
         default=False,
         required=False,
         help='Enable dry-run')
+
+    parser.add_argument('-s','--skeleton',
+        action='store_true',
+        default=False,
+        required=False,
+        help='Print a JSON skeleton for create_iamuser_config.json(Specify a dummy parameter to AccountJsonFile.)')
 
     parser.add_argument('-v', '--version',
         action='version',
@@ -79,6 +99,7 @@ def check_config(config):
         flag = False
         for i in res:
             print('Not found "'+i+'"')
+    
     # Check Level 2 in "Iam"
     keys = [ 'PolicyName', 'UserName', 'Min', 'Max' ]
     target = config.get('Iam')
@@ -87,24 +108,8 @@ def check_config(config):
         flag = False
         for i in res:
             print('Not found "'+i+'" in "Iam"')
+    
     return flag
-
-
-def read_json_file(jsonfile, args):
-    debug = args.debug
-    try:
-        with open(jsonfile, mode='r') as f:
-            data = json.load(f)
-            f.close()
-            if debug:
-                print(json.dumps(data, indent=2))
-            return data
-    except IOError as e:
-        print(e)
-    except json.JSONDecodeError as e:
-        print('JSONDecodeError: ', e)
-
-    return
 
 
 # ---------------------------
@@ -118,32 +123,6 @@ def checkaccount(account):
         print( '{:13s}{:20s}'.format(i['Id'], i['Name'] ))
     print('------------+--------------------')
     return common.answer("Are you OK?")
-
-
-def assume_role(account_id, config):
-    
-    role_arn = 'arn:aws:iam::' + account_id + ':role/' + config['AccountRole']
-    sts_client = boto3.client('sts')
-
-    # Call the assume_role method of the STSConnection object and pass the role
-    # ARN and a role session name.
-    assuming_role = True
-    while assuming_role is True:
-        try:
-            assuming_role = False
-            assumedRoleObject = sts_client.assume_role(
-                RoleArn=role_arn,
-                RoleSessionName="NewAccountRole"
-            )
-        except ClientError as e:
-            assuming_role = True
-            print(e)
-            print("Retrying...")
-            time.sleep(10)
-
-    # From the response that contains the assumed role, get the temporary
-    # credentials that can be used to make subsequent API calls
-    return assumedRoleObject['Credentials']
 
 
 def add_iamuser(credentials, accountid, username, policyname, usernamehead, switchrole, region, args):
@@ -161,7 +140,7 @@ def add_iamuser(credentials, accountid, username, policyname, usernamehead, swit
     # Delete login profile
     try:
         res = iam.get_login_profile(UserName=username)
-    except Exception as e:
+    except ClientError as e:
         if e.response['ResponseMetadata']['HTTPStatusCode'] != 404:
             print(e)
             return False
@@ -262,7 +241,7 @@ def add_resource(config, accounts, args):
     LoginInformation = []
     for id in [ i['Id'] for i in accounts ]:
         print("Account ID: "+id)
-        credentials = assume_role(id, config)
+        credentials = assume_role.assume_role(id, config)
 
         for i in range(config['Iam']['Min'],config['Iam']['Max']+1 ):
             usernamehead = config['Iam']['UserName']
@@ -284,13 +263,17 @@ def main():
     # Initialize
     args = get_args()
 
+    if args.skeleton:
+        print(json.dumps(skeleton_IamUserConfJsonFile,indent=4))
+        return
+
     # Read Json configuration file and generate accounts list
-    config = read_json_file(args.conf, args)
+    config = common.read_json_conf(args.conf, debug=args.debug)
     if config is None: return False
     if not check_config(config): return False
 
     # Read accounts json file
-    accounts = read_json_file(args.AccountJsonFile, args)
+    accounts = common.read_json_conf(args.AccountJsonFile, debug=args.debug)
     if accounts is None: return False
 
     # Check

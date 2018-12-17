@@ -79,9 +79,30 @@ Create AWS accounts. The account information created by the command is output to
 
 ### (1) Create IAM user
 (a) make json file
+
+Generate a JSON file for create_iamuser.py command.
+```
+./create_iamuser.py -s dummy > create_iamuser_config.json
+```
+Modify create_iamuser_config.json. 
+```
+{
+    "Iam": {
+        "UserName": "user", 
+        "PolicyName": "HandsonIamUserPolicy", 
+        "Max": 1, 
+        "Min": 1
+    }, 
+    "AccountRole": "OrganizationAccountAccessRole", 
+    "Region": "ap-northeast-1"
+}
+```
+
 (b) create IAM users
+```
+./create_iamuser.py -c create_iamuser_config.json accounts.json 
 
-
+```
 ## Licence
 Apache License 2.0
 ## Author
