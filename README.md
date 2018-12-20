@@ -115,7 +115,7 @@ cat iamuserlogin.json
 
 If you convert iamuserlogin.json to CSV file, execute following command. Note that [jq](https://stedolan.github.io/jq/) is required by this command.
 ```
-cat iamuserlogin.json | jq -r '["AccountId","ConsoleUrl","UserName","Password"],(.[]|[.AccountId,.ConsoleUrl,.UserName,.Pssword]) | @csv' 
+cat iamuserlogin.json | jq -r '["AccountId","ConsoleUrl","UserName","Password"],(.[]|[.AccountId,.ConsoleUrl,.UserName,.Password]) | @csv' 
 ```
 ## Licence
 Apache License 2.0
