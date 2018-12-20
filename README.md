@@ -105,11 +105,16 @@ According to the setting of json above, a IAM user with the following settings a
 |:-----------:|:------------:|
 |user01|HandsonIamUserPolicy|
 
-
-
 (b) create IAM users
+Create IAM user(s) in each AWS account. the information of created IAM user is written to a JSON file whose name is "iamuserlogin.json".
 ```
-./create_iamuser.py -c create_iamuser_config.json accounts.json 
+./create_iamuser.py -c create_iamuser_config.json accounts.json
+cat iamuserlogin.json
+```
+
+If you convert iamuserlogin.json to CSV file, execute following command. Note that [jq](https://stedolan.github.io/jq/) is required by this command.
+```
+cat iamuserlogin.json | jq -r '["AccountId","ConsoleUrl","UserName","Password"],(.[]|[.AccountId,.ConsoleUrl,.UserName,.Pssword]) | @csv' 
 ```
 ## Licence
 Apache License 2.0
