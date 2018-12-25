@@ -213,7 +213,10 @@ def add_iamuser(credentials, accountid, username, policyname, usernamehead, swit
 
     # Create login profile User
     print("    Set a assword.")
-    password = ''.join([random.choice(string.ascii_letters + string.digits) for i in range(8)])
+    ascii_letters = "ABCDEFGHJKLMNPQRSTUVWXYXabcdefghijkmnpqrstuvwxyz"
+    digits = "123456789"
+    symbol = "@#%$&"
+    password = ''.join([random.choice(ascii_letters+digits+symbol) for i in range(8)])
     if args.debug : print("    password= "+password)
     try:
         res = iam.create_login_profile(
